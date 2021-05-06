@@ -1,0 +1,21 @@
+#compdef ac
+
+_ac_problems() {
+  find src -type f -name \*.rs | sed 's,.*/,,g; s/.rs$//g' | sort
+}
+
+if [ $CURRENT -eq 2 ]; then
+    _values args \
+        'test[Test for a Problem]' \
+        'submit[Submit your Code]' \
+        'status[Show status]' \
+        'new[create New Project]'
+else
+    case $words[2] in
+      status )
+          ;;
+      s* | t* )
+        _values problems $(_ac_problems)
+        ;;
+    esac
+fi

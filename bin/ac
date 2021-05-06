@@ -1,0 +1,127 @@
+#!/bin/bash
+
+usage() {
+    echo "See https://github.com/cympfh/ac"
+    exit
+}
+
+error() {
+    echo "[ERR] $@" >&2
+    exit 1
+}
+
+last-problem-id() {
+    if [ -f .ac/last_problem ]; then
+        cat .ac/last_problem | tr -d '\n'
+    else
+        error "No PROBLEM_ID"
+    fi
+}
+
+ac-init() {
+    mkdir -p .ac
+}
+
+ac-new() {
+    cargo atcoder new $@
+}
+
+ac-test() {
+    ac-init
+    PROBLEM_ID=
+    CASE_ID=
+    OPTIONS=
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            - )
+                CASE_ID=-
+                ;;
+            -* )
+                OPTIONS="$OPTIONS $1"
+                ;;
+            * )
+                if [ -z "$PROBLEM_ID" ]; then
+                    PROBLEM_ID=$1
+                else
+                    CASE_ID=$1
+                fi
+                ;;
+        esac
+        shift
+    done
+    if [ -z "$PROBLEM_ID" ]; then
+        PROBLEM_ID=$(last-problem-id)
+        if [ -z "$PROBLEM_ID" ]; then
+            exit 1
+        fi
+    fi
+
+    if [ -z "$CASE_ID" ]; then
+        cargo atcoder test $PROBLEM_ID $OPTIONS
+    elif [ "$CASE_ID" = "-" ]; then
+        cargo atcoder test $PROBLEM_ID -c $OPTIONS
+    elif [ -f "$CASE_ID" ]; then
+        cat "$CASE_ID" | cargo atcoder test $PROBLEM_ID -c $OPTIONS
+    else
+        cat "$CASE_ID" | cargo atcoder test $PROBLEM_ID $CASE_ID $OPTIONS
+    fi
+
+    echo -n "$PROBLEM_ID" > .ac/last_problem
+}
+
+ac-submit() {
+    ac-init
+    PROBLEM_ID=
+    OPTIONS=
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -* )
+                OPTIONS="$OPTIONS $1"
+                ;;
+            * )
+                PROBLEM_ID=$1
+                ;;
+        esac
+        shift
+    done
+    if [ -z "$PROBLEM_ID" ]; then
+        PROBLEM_ID=$(last-problem-id)
+        if [ -z "$PROBLEM_ID" ]; then
+            exit 1
+        fi
+    fi
+
+    cargo atcoder submit $PROBLEM_ID $OPTIONS
+}
+
+ac-status() {
+    cargo atcoder status
+}
+
+if [ $# -eq 0 ]; then
+    usage
+fi
+
+case $1 in
+    help | --help | -h | -? )
+        usage
+        ;;
+    new | n* )
+        shift
+        ac-new $@
+        ;;
+    test | t* )
+        shift
+        ac-test $@
+        ;;
+    status | st* )
+        ac-status
+        ;;
+    submit | s* )
+        shift
+        ac-submit $@
+        ;;
+    * )
+        error "Unknown command"
+        ;;
+esac
