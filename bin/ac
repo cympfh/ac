@@ -5,6 +5,10 @@ usage() {
     exit
 }
 
+info() {
+    echo "[INFO] $@" >&2
+}
+
 error() {
     echo "[ERR] $@" >&2
     exit 1
@@ -49,12 +53,25 @@ ac-test() {
         esac
         shift
     done
+
+    if [ -z "$CASE_ID" ]; then
+        if [ "$PROBLEM_ID" = "-" ]; then
+            PROBLEM_ID=
+            CASE_ID=-
+        elif [ -f "$PROBLEM_ID" ]; then
+            CASE_ID=$PROBLEM_ID
+            PROBLEM_ID=
+        fi
+    fi
+
     if [ -z "$PROBLEM_ID" ]; then
         PROBLEM_ID=$(last-problem-id)
         if [ -z "$PROBLEM_ID" ]; then
             exit 1
         fi
     fi
+
+    info "PROBLEM = $PROBLEM_ID, CASE = $CASE_ID"
 
     if [ -z "$CASE_ID" ]; then
         cargo atcoder test $PROBLEM_ID $OPTIONS
@@ -95,7 +112,7 @@ ac-submit() {
 }
 
 ac-status() {
-    cargo atcoder status
+    timeout 1 cargo atcoder status
 }
 
 if [ $# -eq 0 ]; then
