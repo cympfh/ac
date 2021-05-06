@@ -63,7 +63,7 @@ ac-test() {
     elif [ -f "$CASE_ID" ]; then
         cat "$CASE_ID" | cargo atcoder test $PROBLEM_ID -c $OPTIONS
     else
-        cat "$CASE_ID" | cargo atcoder test $PROBLEM_ID $CASE_ID $OPTIONS
+        cargo atcoder test $PROBLEM_ID $CASE_ID $OPTIONS
     fi
 
     echo -n "$PROBLEM_ID" > .ac/last_problem
