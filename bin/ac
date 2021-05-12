@@ -115,6 +115,16 @@ ac-status() {
     timeout 1 cargo atcoder status
 }
 
+ac-edit() {
+    ac-init
+    if [ -z "$EDITOR" ]; then
+        error "Set \$EDITOR"
+    fi
+    PROBLEM_ID="$1"
+    echo -n "$PROBLEM_ID" > .ac/last_problem
+    $EDITOR src/bin/$PROBLEM_ID.rs
+}
+
 if [ $# -eq 0 ]; then
     usage
 fi
@@ -137,6 +147,10 @@ case $1 in
     submit | s* )
         shift
         ac-submit $@
+        ;;
+    edit | e* )
+        shift
+        ac-edit $@
         ;;
     * )
         error "Unknown command"

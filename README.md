@@ -48,4 +48,7 @@ ac submit
 
 ac status
     Alias for `cargo atcoder status`
+
+ac edit <PROBLEM_ID>
+    Open `src/bin/<PROBLEM_ID>.rs` with \$EDITOR
 ```
