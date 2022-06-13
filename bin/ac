@@ -27,7 +27,7 @@ ac-init() {
 }
 
 ac-new() {
-    cargo atcoder new $@
+    cargo atcoder new $@ -b a -b b
 }
 
 ac-update() {
@@ -126,6 +126,9 @@ ac-edit() {
     fi
     PROBLEM_ID="$1"
     echo -n "$PROBLEM_ID" > .ac/last_problem
+    if [ ! -s src/bin/$PROBLEM_ID.rs ]; then
+        template rs > src/bin/$PROBLEM_ID.rs
+    fi
     $EDITOR src/bin/$PROBLEM_ID.rs
 }
 
