@@ -132,6 +132,11 @@ ac-edit() {
     $EDITOR src/bin/$PROBLEM_ID.rs
 }
 
+ac-login() {
+    ac-init
+    cargo atcoder login
+}
+
 if [ $# -eq 0 ]; then
     usage
 fi
@@ -161,6 +166,9 @@ case $1 in
         ;;
     install | update )
         ac-update
+        ;;
+    login | auth )
+        ac-login
         ;;
     * )
         error "Unknown command"
